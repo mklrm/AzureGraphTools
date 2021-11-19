@@ -25,18 +25,20 @@ $body = @{
     grant_type    = "client_credentials"
 }
 
-# Get OAuth 2.0 Token
-try {
-    $tokenRequest = Invoke-WebRequest `
-        -Method Post `
-        -Uri $uri `
-        -ContentType "application/x-www-form-urlencoded" `
-        -Body $body -UseBasicParsing `
-        -ErrorAction Stop
+function Get-AzGraphToken
+{
+    try {
+        $tokenRequest = Invoke-WebRequest `
+            -Method Post `
+            -Uri $uri `
+            -ContentType "application/x-www-form-urlencoded" `
+            -Body $body -UseBasicParsing `
+            -ErrorAction Stop
 
-    $token = ($tokenRequest.Content | ConvertFrom-Json -ErrorAction Stop).access_token
-} catch {
-    throw "Error getting OAuth 2.0 Token: $($_.ToString())"
+        ($tokenRequest.Content | ConvertFrom-Json -ErrorAction Stop).access_token
+    } catch {
+        throw "Error getting OAuth 2.0 Token: $($_.ToString())"
+    }
 }
 
 # Based on https://github.com/12Knocksinna/Office365itpros/blob/master/ReportDLMembershipsCountsGraph.PS1
@@ -94,6 +96,8 @@ function Get-AzUserAuthenticationMethods
     Param(
         [Parameter(Mandatory=$false)][String]$UserPrincipalName
     )
+    # See https://docs.microsoft.com/en-us/graph/authenticationmethods-get-started#api-reference
+    $token = Get-AzGraphToken
     if ($UserPrincipalName) {
         $uri = "https://graph.microsoft.com/beta/users/$UserPrincipalName" + '?$select=userPrincipalName'
     } else {
