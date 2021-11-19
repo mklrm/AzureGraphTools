@@ -56,7 +56,7 @@ function Get-AzGraphData
 
     # Invoke REST method and fetch data until there are no pages left.
     while ($uri) {
-        $statusCode = 429 # Means requests are getting throttled. Setting here to truck the while loop 
+        $statusCode = 429 # Means requests are getting throttled. Setting here to trick the while loop 
                           # to iterate at least once.
         while ($statusCode -eq 429) {
             try {
